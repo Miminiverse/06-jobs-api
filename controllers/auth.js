@@ -1,16 +1,23 @@
 const User = require('../models/User')
-const {StatusCodes, RESET_CONTENT} = require('http-status-codes')
+const {StatusCodes} = require('http-status-codes')
 const {BadRequestError, UnauthenticatedError} = require("../errors")
 
 const jwt = require('jsonwebtoken')
+
+// register --> await token (promise) --> await createJWT (promise) 
+// createJWT() --> return a Promise for a callback?
+
+// UserSchema.methods.createJWT = function () {
+//     return jwt.sign({userId: this._id, name: this.name}, process.env.JWT_SECRET, {expiresIn: '30d'})
+// }
 
 
 const register = async (req,res) => {
 
     const user = await User.create({...req.body})
     try {
-        const token = user.createJWT()
-            res
+        const token = await user.createJWT()
+        res
             .status(StatusCodes.CREATED)
             .json({user: { name: user.getName() }, token})
 
@@ -36,7 +43,7 @@ const login = async (req,res) => {
         throw new UnauthenticatedError('Invalid credentials')
     }
 
-    const token = user.createJWT()
+    const token = await user.createJWT()
     res.status(StatusCodes.OK).json({user: { name: user.getName() }, token})
 
 }
