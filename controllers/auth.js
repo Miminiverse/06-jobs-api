@@ -19,7 +19,14 @@ const register = async (req,res) => {
         const token = await user.createJWT()
         res
             .status(StatusCodes.CREATED)
-            .json({user: { name: user.getName() }, token})
+            .json(
+                {user: 
+                    { name: user.getName(),
+                        email:  user.getEmail(),
+                    }, 
+                loggedIn: true,
+                token}
+                )
 
     } catch (err) {
         console.log(err)
@@ -44,7 +51,14 @@ const login = async (req,res) => {
     }
 
     const token = await user.createJWT()
-    res.status(StatusCodes.OK).json({user: { name: user.getName() }, token})
+    res.status(StatusCodes.OK).json(
+        {user: 
+            { name: user.getName(),
+                email:  user.getEmail(),
+            }, 
+        loggedIn: true,
+        token}
+        )
 
 }
 

@@ -35,9 +35,10 @@ UserSchema.methods.getName = function () {
     return this.name
 }
 
-// UserSchema.methods.createJWT = function () {
-//     return jwt.sign({userId: this._id, name: this.name}, process.env.JWT_SECRET, {expiresIn: '30d'})
-// }
+UserSchema.methods.getEmail = function () {
+    return this.email
+}
+
 
 
 UserSchema.methods.createJWT = async function () {
