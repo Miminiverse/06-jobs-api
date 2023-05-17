@@ -6,7 +6,6 @@ const { resolve } = require('path');
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true, 'Please provide a username'],
         minlength: 3,
         maxlength: 50
     },
