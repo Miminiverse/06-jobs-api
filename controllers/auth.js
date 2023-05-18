@@ -50,7 +50,12 @@ const login = async (req,res) => {
         throw new UnauthenticatedError('Invalid credentials')
     }
 
+    console.time("create JWT")
+
+
+
     const token = await user.createJWT()
+    console.timeEnd("create JWT")
     res.status(StatusCodes.OK).json(
         {user: 
             { name: user.getName(),
@@ -59,7 +64,6 @@ const login = async (req,res) => {
         loggedIn: true,
         token}
         )
-
 }
 
 
