@@ -1,0 +1,3 @@
+
+
+    const user = await User.create({...req.body})
