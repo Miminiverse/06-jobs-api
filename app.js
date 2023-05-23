@@ -3,6 +3,12 @@ require('express-async-errors');
 const express = require('express');
 const app = express();
 const cookieParser = require('cookie-parser')
+const session = require('express-session')
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const OAuthUser = require('./models/OAuthUser')
+const OAuthAuthen = require("./middleware/OAuthAuthen")
+
 //extra security packages
 const helmet = require('helmet')
 const cors = require('cors')
@@ -20,6 +26,7 @@ const connectDB = require('./db/connect')
 
 const authRouter = require('./routes/auth')
 const todosRouter = require('./routes/todos')
+const OtodosRouter = require('./routes/Otodos')
 
 // error handler
 const notFoundMiddleware = require('./middleware/not-found');
@@ -34,10 +41,95 @@ app.use(rateLimiter({
 app.use(express.json());
 app.use(cookieParser())
 app.use(helmet())
-app.use(cors())
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}))
 app.use(xss())
+app.use(
+  session({
+    secret: "secretcode",
+    resave: true,
+    saveUninitialized: true,
+  })
+)
+
+app.use(passport.initialize())
+app.use(passport.session())
 
 
+passport.serializeUser((user, done) => {
+  return done(null, user._id)
+} )
+
+passport.deserializeUser((id, done) => {
+  OAuthUser.findById(id, (err, doc) => {
+    return done(null, doc)
+  })
+})
+
+passport.use(new GoogleStrategy({
+  clientID: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET,
+  callbackURL: "/auth/google/callback"
+},
+function(accessToken, refreshToken, profile, cb) {
+
+
+  OAuthUser.findOne({ googleId : profile.id}, async (err, doc) => {
+    
+    if (err) {
+      return cb (err, null)
+    }
+    if (!doc) {
+      const newOAuthUser =  new OAuthUser({
+        googleId: profile.id,
+        username: profile.name.givenName
+      })
+      await newOAuthUser.save()
+      cb(null, newOAuthUser)
+    }
+    cb(null, doc)
+  })
+}
+));
+
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile'] }));
+
+app.get('/auth/google/callback', 
+  passport.authenticate('google', { session: true }),
+  function (req, res) {
+    res.redirect('http://localhost:5173/oauth/todo')
+}
+  );
+
+
+
+app.get("/account", OAuthAuthen, (req,res) => {
+  const user = {
+    ...req.user,
+    loggedIn: true
+  }
+  res.json(user)
+})
+
+
+
+
+app.get('/auth/logout', (req, res) => {
+  if (req.user) {
+    req.logout((err) => {
+      if (err) {
+        // Handle error during logout
+        return res.status(500).send('Error during logout');
+      }
+      res.send('success');
+    });
+  } else {
+    res.send('No user session');
+  }
+});
 
 
 // extra packages
@@ -45,6 +137,7 @@ app.use(xss())
 // routes
 app.use('/api/v1/auth',authRouter)
 app.use('/api/v1/todos',authenticationMiddleware, todosRouter)
+app.use('/api/v1/oauth/todos', OAuthAuthen, OtodosRouter)
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
