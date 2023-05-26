@@ -10,7 +10,7 @@ const OTodoSchema = new mongoose.Schema({
     },
     pic: {
         type: String,
-        default: "/Users/miminiverse/Desktop/mipy/mimi-development/node/06-lessons/06-jobs-api/assets/user.png"
+        default: "https://jwt.io/img/pic_logo.svg"
     },
     createdBy: {
         type: mongoose.Types.ObjectId,

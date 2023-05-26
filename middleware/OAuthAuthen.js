@@ -8,7 +8,6 @@ const OAuthAuthen = (req,res,next) => {
     } catch (err) {
         res.json({msg: "Invalid credentials"})
     }
-
 }
 
 module.exports = OAuthAuthen

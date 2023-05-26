@@ -8,6 +8,7 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const OAuthUser = require('./models/OAuthUser')
 const OAuthAuthen = require("./middleware/OAuthAuthen")
+const axios = require("axios")
 
 //extra security packages
 const helmet = require('helmet')
@@ -32,6 +33,9 @@ const OtodosRouter = require('./routes/Otodos')
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 //
+
+app.use(express.raw({type: "image/jpeg", limit: 2e6}));
+app.use(express.raw({type: "image/png", limit: 2e6}));
 
 app.set('trust proxy', 1);
 app.use(rateLimiter({
@@ -139,8 +143,12 @@ app.use('/api/v1/auth',authRouter)
 app.use('/api/v1/todos',authenticationMiddleware, todosRouter)
 app.use('/api/v1/oauth/todos', OAuthAuthen, OtodosRouter)
 
+
+
+
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
+
 
 const port = process.env.PORT || 5051;
 
