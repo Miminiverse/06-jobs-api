@@ -11,7 +11,7 @@ const getAllTodos = async (req,res) => {
 
 const getTodo = async (req,res) => {
     const {user: {userId}, params: {id: todoId}} = req
-    const todo = await Todo.findOne({
+    const todo = await Todo.findOne({ 
         _id: todoId,
         createdBy: userId
     })
