@@ -10,6 +10,7 @@ const OAuthUser = require('./models/OAuthUser')
 const OAuthAuthen = require("./middleware/OAuthAuthen")
 const axios = require("axios")
 
+
 //extra security packages
 const helmet = require('helmet')
 const cors = require('cors')
@@ -28,6 +29,7 @@ const connectDB = require('./db/connect')
 const authRouter = require('./routes/auth')
 const todosRouter = require('./routes/todos')
 const OtodosRouter = require('./routes/Otodos')
+const commentRouter = require('./routes/comment')
 
 // error handler
 const notFoundMiddleware = require('./middleware/not-found');
@@ -142,8 +144,7 @@ app.get('/auth/logout', (req, res) => {
 app.use('/api/v1/auth',authRouter)
 app.use('/api/v1/todos',authenticationMiddleware, todosRouter)
 app.use('/api/v1/oauth/todos', OAuthAuthen, OtodosRouter)
-
-
+app.use('/api/v1/oauth/todos/comment', OAuthAuthen, commentRouter)
 
 
 app.use(notFoundMiddleware);

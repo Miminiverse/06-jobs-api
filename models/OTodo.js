@@ -12,6 +12,10 @@ const OTodoSchema = new mongoose.Schema({
         type: String,
         default: "https://jwt.io/img/pic_logo.svg"
     },
+    comments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment'
+    }],
     createdBy: {
         type: mongoose.Types.ObjectId,
         ref: 'OAuthUser',
