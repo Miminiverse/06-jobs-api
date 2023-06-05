@@ -9,7 +9,8 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const OAuthUser = require('./models/OAuthUser')
 const OAuthAuthen = require("./middleware/OAuthAuthen")
 const axios = require("axios")
-
+const socket = require('socket.io');
+const mongoose = require('mongoose')
 
 //extra security packages
 const helmet = require('helmet')
@@ -34,10 +35,9 @@ const commentRouter = require('./routes/comment')
 // error handler
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
+const { isObjectBindingPattern } = require('typescript');
 //
 
-app.use(express.raw({type: "image/jpeg", limit: 2e6}));
-app.use(express.raw({type: "image/png", limit: 2e6}));
 
 app.set('trust proxy', 1);
 app.use(rateLimiter({
@@ -59,6 +59,8 @@ app.use(
     saveUninitialized: true,
   })
 )
+
+//Passport Google OAuth
 
 app.use(passport.initialize())
 app.use(passport.session())
@@ -111,7 +113,6 @@ app.get('/auth/google/callback',
   );
 
 
-
 app.get("/account", OAuthAuthen, (req,res) => {
   const user = {
     ...req.user,
@@ -119,8 +120,6 @@ app.get("/account", OAuthAuthen, (req,res) => {
   }
   res.json(user)
 })
-
-
 
 
 app.get('/auth/logout', (req, res) => {
@@ -153,15 +152,39 @@ app.use(errorHandlerMiddleware);
 
 const port = process.env.PORT || 5051;
 
-const start = async () => {
-  try {
-    await connectDB(process.env.MONGO_URI)
-    app.listen(port, () =>
-      console.log(`Server is listening on port ${port}...`)
-    );
-  } catch (error) {
-    console.log(error);
-  }
-};
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("DB Connetion Successfull");
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
 
-start();
+  const server = app.listen(port, () => {
+    console.log(`listen to ${port}`);
+})
+
+const io = socket(server,  {
+    cors: {
+        origin: true,
+        credentials: true,
+    }
+});
+
+
+
+
+global.onlineUsers = new Map()
+
+io.on("connection", (socket) => {
+    global.chatSocket = socket
+
+    socket.on("online-user", (username, userId) => {
+      onlineUsers.set(userId, socket.id)
+      console.log(`User ${username} connected!`);
+    })
+})
