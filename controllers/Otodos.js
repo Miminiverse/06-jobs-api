@@ -7,7 +7,7 @@ const getAllOTodos = async (req,res) => {
     if (req.user){
         console.log(req.user);
     }
-    const Otodos = await OTodo.find({createdBy: req.user._id}).sort('createdAt')
+    const Otodos = await OTodo.find({}).sort('createdAt')
     res.status(StatusCodes.OK).json({Otodos})
 }
 

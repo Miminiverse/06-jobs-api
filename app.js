@@ -143,7 +143,7 @@ app.get('/auth/logout', (req, res) => {
 app.use('/api/v1/auth',authRouter)
 app.use('/api/v1/todos',authenticationMiddleware, todosRouter)
 app.use('/api/v1/oauth/todos', OAuthAuthen, OtodosRouter)
-app.use('/api/v1/oauth/todos/comment', OAuthAuthen, commentRouter)
+app.use('/api/v1/oauth/todos/comment',  commentRouter)
 
 
 app.use(notFoundMiddleware);
@@ -185,6 +185,13 @@ io.on("connection", (socket) => {
 
     socket.on("online-user", (username, userId) => {
       onlineUsers.set(userId, socket.id)
-      console.log(`User ${username} connected!`);
+      // console.log(`User ${username} with ${socket.id} connected!`);
+    })
+
+    socket.on("create-comment", (data) => {
+      console.log(data);
+      io.emit("broadcast-comment", data)
     })
 })
+
+console.log(onlineUsers);
