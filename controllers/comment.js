@@ -25,7 +25,6 @@ const createComment = async (req,res) => {
             if(err) {
                 res.status(400).json("error: " + err)
             } 
-            console.log(data);
         }
     )
 
@@ -36,7 +35,7 @@ const getAllComment = async (req,res) => {
         const todo = await OTodo.findById(req.params.id).populate({
             path: 'comments',
             options: { sort: { createdAt: -1 } }, 
-            select: 'content username'
+            select: 'content username _id replies'
           });
         if(!todo) {
             return res.status(404).json({ error: 'Post not found' });
@@ -44,7 +43,9 @@ const getAllComment = async (req,res) => {
         const comments = todo.comments.map((comment) => 
         ({
             content: comment.content,
-            username: comment.username
+            username: comment.username,
+            _id: comment._id,
+            replies: comment.replies,
         }))
         res.status(200).json(comments)
 
@@ -52,6 +53,42 @@ const getAllComment = async (req,res) => {
         res.status(400).json({ error: err.message });
     }
 }
+
+
+
+const createReply = async (req,res) => {
+    console.log(req.params)
+    console.log(req.body)
+    console.log(req.user.username)
+
+
+    const comment_id = req.params.commentId
+    try {
+        if (comment_id) {
+            const reply = {
+                commentId: comment_id,
+                username: req.user.username,
+                reply: req.body.reply,
+            }
+            const newComment = await Comment.findByIdAndUpdate(
+                {
+                _id: comment_id
+            }, {
+                $push: {replies: reply}
+            }, {
+                new: true
+            }
+            )
+            console.log(newComment)
+            res.json(newComment)
+        }
+
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+
+}
+
 
 const getCommentTemp = (req,res) =>{
 res.json([
@@ -107,7 +144,7 @@ const getChildrenComment = (req,res) => {
 
 module.exports = { 
     createComment, 
-    // getTodo,
+    createReply,
     getAllComment,
     // updateTodo,
     // deleteTodo,

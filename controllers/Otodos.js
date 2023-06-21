@@ -5,7 +5,6 @@ const {BadRequestError, NotFoundError} = require("../errors")
 
 const getAllOTodos = async (req,res) => {
     if (req.user){
-        console.log(req.user);
     }
     const Otodos = await OTodo.find({}).sort('createdAt')
     res.status(StatusCodes.OK).json({Otodos})
@@ -27,7 +26,6 @@ const getAllOTodos = async (req,res) => {
 
 const createOTodo = async (req,res) => {
     if (req.user) {
-        console.log(req.user);
     }
     req.body.createdBy = req.user._id
     const Otodo = await OTodo.create(req.body)
