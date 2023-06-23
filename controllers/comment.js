@@ -8,46 +8,34 @@ const {BadRequestError, NotFoundError} = require("../errors")
 
 const createComment = async (req,res) => {
 
-    const {id, userId} = req.params
-    const {content} = req.body
-    const user = await OAuthUser.findById(userId)
 
-    const newContent = new Comment({
-        content, 
-        username: req.user.username
+    console.log(req.body)
+
+
+    const newContent = new Comment(req.body)
+    newContent.save((err, comment) => {
+        if (err) return res.json(err)
+
+        Comment.find({
+            "_id": comment._id
+        })
+        .populate("username")
+        .exec((err, result) => {
+            if (err) return res.json(err)
+            return res.status(200).json({success: true, result})
+        })
     })
-    newContent.save()
-    .then(() => res.json("Comment Added"));
-    OTodo.findByIdAndUpdate(
-        {_id: id},
-        { $push: { comments: newContent}},
-        (err, data) => {
-            if(err) {
-                res.status(400).json("error: " + err)
-            } 
-        }
-    )
 
 }
 
 const getAllComment = async (req,res) => {
     try {
-        const todo = await OTodo.findById(req.params.id).populate({
-            path: 'comments',
-            options: { sort: { createdAt: -1 } }, 
-            select: 'content username _id replies'
-          });
-        if(!todo) {
-            return res.status(404).json({ error: 'Post not found' });
-        }
-        const comments = todo.comments.map((comment) => 
-        ({
-            content: comment.content,
-            username: comment.username,
-            _id: comment._id,
-            replies: comment.replies,
-        }))
-        res.status(200).json(comments)
+        Comment.find({"todoId": req.body.todoId})
+        .populate("username")
+        .exec((err, comments) => {
+            if (err) return res.json(err)
+            res.status(200).json({success: true, comments})
+        })
 
     } catch (err) {
         res.status(400).json({ error: err.message });
