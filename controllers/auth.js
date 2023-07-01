@@ -52,11 +52,9 @@ const login = async (req,res) => {
 
     console.time("create JWT")
 
-
-
     const token = await user.createJWT()
     console.timeEnd("create JWT")
-    res.status(StatusCodes.OK).json(
+    res.cookie('token', token, {sameSite: 'none', secure: true}).status(StatusCodes.OK).json(
         {user: 
             { name: user.getName(),
                 email:  user.getEmail(),
