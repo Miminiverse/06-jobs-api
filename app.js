@@ -35,7 +35,7 @@ const commentRouter = require('./routes/comment')
 // error handler
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
-const { isObjectBindingPattern } = require('typescript');
+
 //
 
 
@@ -54,7 +54,7 @@ app.use(cors({
 app.use(xss())
 app.use(
   session({
-    secret: "secretcode",
+    secret: process.env.COOKIE_SECRET,
     resave: true,
     saveUninitialized: true,
   })
@@ -130,6 +130,7 @@ app.get('/auth/logout', (req, res) => {
         return res.status(500).send('Error during logout');
       }
       res.send('success');
+
     });
   } else {
     res.send('No user session');

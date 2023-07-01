@@ -4,7 +4,7 @@ const router = express.Router()
 
 const {    
     getAllOTodos, 
-    // getTodo,
+    getOTodo,
     createOTodo,
     // updateTodo,
     // deleteTodo
@@ -12,7 +12,7 @@ const {
 
 
 router.route("/").post(createOTodo).get(getAllOTodos)
-// router.route("/:id").get(getTodo).delete(deleteTodo).patch(updateTodo)
+router.route("/:id").get(getOTodo)
 
 
 module.exports = router
