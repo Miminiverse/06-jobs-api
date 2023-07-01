@@ -6,22 +6,21 @@ const {BadRequestError, NotFoundError} = require("../errors")
 const getAllOTodos = async (req,res) => {
     if (req.user){
     }
-    const Otodos = await OTodo.find({}).sort('createdAt')
+    const Otodos = await OTodo.find({}).sort({createdAt: -1})
     res.status(StatusCodes.OK).json({Otodos})
 }
 
 
-// const getOTodo = async (req,res) => {
-//     const {user: {userId}, params: {id: todoId}} = req
-//     const todo = await Todo.findOne({
-//         _id: todoId,
-//         createdBy: userId
-//     })
-//     if (!todo) {
-//         throw new NotFoundError(`No todo with id`)
-//     }
-//     res.status(StatusCodes.OK).json({todo})
-// }
+const getOTodo = async (req,res) => {
+  
+    const Otodo = await OTodo.findOne({
+        _id: req.params.id,
+    })
+    if (!Otodo) {
+        throw new NotFoundError(`No todo with id`)
+    }
+    res.status(StatusCodes.OK).json({Otodo})
+}
 
 
 const createOTodo = async (req,res) => {
@@ -69,7 +68,7 @@ const createOTodo = async (req,res) => {
 
 module.exports = { 
     getAllOTodos, 
-    // getTodo,
+    getOTodo,
     createOTodo,
     // updateTodo,
     // deleteTodo
