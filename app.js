@@ -48,9 +48,9 @@ app.use(express.json());
 app.use(cookieParser())
 app.use(helmet())
 app.use(cors({
-  origin: ["http://localhost:3000", "www.rocco-nardone.xyz", "https://www.rocco-nardone.xyz/"],
+  origin: true,
   credentials: true
-}))
+}));
 app.use(xss())
 app.use(
   session({
