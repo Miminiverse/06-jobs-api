@@ -6,17 +6,15 @@ const TodoSchema = new mongoose.Schema({
     },
     content: {
         type: String,
-        required: [true, 'PLease provide a content']
     },
     status: {
         type: String,
         enum: ['draft', 'published'],
-        default: 'draft'
+        default: 'published'
     },
     createdBy: {
         type: mongoose.Types.ObjectId,
         ref: 'User',
-        required: [true, 'Please provide a user']
     }
 }, {timestamps: true})
 

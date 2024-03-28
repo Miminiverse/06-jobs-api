@@ -3,10 +3,20 @@ const {StatusCodes} = require('http-status-codes')
 const {BadRequestError, NotFoundError} = require("../errors")
 
 
-const getAllTodos = async (req,res) => {
-    const todos = await Todo.find({createdBy: req.user.userId}).sort('createdAt')
-    res.status(StatusCodes.OK).json({todos})
-}
+const getAllTodos = async (req, res) => {
+    try {
+        // Retrieve all todos from the Todo collection and sort by createdAt
+        const todos = await Todo.find({}).sort('createdAt');
+
+        // Send todos as JSON response with status code 200 (OK)
+        res.status(StatusCodes.OK).json({ todos });
+    } catch (error) {
+        // Handle any errors that occur during the process
+        console.error('Error fetching todos:', error);
+        // Send an error response with appropriate status code
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+    }
+};
 
 
 const getTodo = async (req,res) => {
@@ -23,10 +33,24 @@ const getTodo = async (req,res) => {
 
 
 const createTodo = async (req,res) => {
-    req.body.createdBy = req.user.userId
-    const todo = await Todo.create(req.body)
-    res.status(StatusCodes.CREATED).json({todo})
+    try {
+        // Extract the title and content from req.body
+        const { title, content } = req.body;
 
+        // Create a todo with the extracted title and content
+        const todo = await Todo.create({
+            title,
+            content,
+        });
+
+        // Send the created todo as JSON response with status code 201 (Created)
+        res.status(StatusCodes.CREATED).json({ todo });
+    } catch (error) {
+        // Handle any errors that occur during the process
+        console.error('Error creating todo:', error);
+        // Send an error response with appropriate status code
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+    }
 }
 
 const updateTodo = async (req,res) => {

@@ -48,7 +48,7 @@ app.use(express.json());
 app.use(cookieParser())
 app.use(helmet())
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "http://localhost:3000",
   credentials: true
 }))
 app.use(xss())
@@ -142,9 +142,9 @@ app.get('/auth/logout', (req, res) => {
 
 // routes
 app.use('/api/v1/auth',authRouter)
-app.use('/api/v1/todos',authenticationMiddleware, todosRouter)
-app.use('/api/v1/oauth/todos', OAuthAuthen, OtodosRouter)
-app.use('/api/v1/oauth/todos/comment', OAuthAuthen, commentRouter)
+app.use('/api/v1/todos', todosRouter)
+app.use('/api/v1/oauth/todos',  OtodosRouter)
+app.use('/api/v1/oauth/todos/comment', commentRouter)
 
 
 app.use(notFoundMiddleware);
